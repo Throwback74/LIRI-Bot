@@ -1,12 +1,12 @@
 require("dotenv").config();
 console.log('this is loaded');
 
-exports.twitterKeys = {
-  consumer_key: '',
-  consumer_secret: '',
-  access_token_key: '',
-  access_token_secret: ''
-};
+// exports.twitterKeys = {
+//   consumer_key: '',
+//   consumer_secret: '',
+//   access_token_key: '',
+//   access_token_secret: ''
+// };
 
 exports.twitter = {
   consumer_key: process.env.TWITTER_CONSUMER_KEY,

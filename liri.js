@@ -11,12 +11,7 @@ var Twitter = require('twitter');
 var Spotify = require('node-spotify-api');
 
 // var client = new Twitter(JSON.stringify(keys.twitter));
-var client = new Twitter({
-    consumer_key: keys.twitter.consumer_key,
-    consumer_secret: keys.twitter.consumer_secret,
-    access_token_key: keys.twitter.access_token_key,
-    access_token_secret: keys.twitter.access_token_secret
-  });
+var client = new Twitter(keys.twitter);
 // var spotify = new Spotify(keys.spotify);
 // console.log('Twit keys: ' + JSON.stringify(keys.twitter));
 // // console.log('Keys: ' + keys);
