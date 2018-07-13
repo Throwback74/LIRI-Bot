@@ -1,23 +1,14 @@
 var keys = require("./keys.js");
-// require("dotenv").config();
-// if (result.error) {
-//     throw result.error;
-//   }
 
-//   console.log(result.parsed);
 var fs = require('fs');
 var request = require('request');
 var Twitter = require('twitter');
 var Spotify = require('node-spotify-api');
 
-// var client = new Twitter(JSON.stringify(keys.twitter));
+
 var client = new Twitter(keys.twitter);
 // var spotify = new Spotify(keys.spotify);
-// console.log('Twit keys: ' + JSON.stringify(keys.twitter));
-// // console.log('Keys: ' + keys);
-// console.log('Twitter keys: ' + JSON.stringify(client));
-//Take in the following arguments:
-// * `my-tweets`
+
 var params = {
     screen_name: 'Charlie53987504',
     count: 20
@@ -31,23 +22,20 @@ var divider =
 "\n------------------------------------------------------------\n\n";
 var nodeArgs = process.argv;
 
-// var queryLine = function() {
-//         var queryCmd = "";
-//         for (var i = 3; i < nodeArgs.length; i++) {
+var queryLine = "";
+for (var i = 3; i < nodeArgs.length; i++) {
 
-//         if (i > 3 && i < nodeArgs.length) {
+if (i > 3 && i < nodeArgs.length) {
 
-//             queryCmd = queryCmd + "+" + nodeArgs[i];
+    queryLine = queryLine + "+" + nodeArgs[i];
 
-//         } else {
+} else {
 
-//             queryCmd += nodeArgs[i];
+    queryLine += nodeArgs[i];
 
-//         }
-        
-//     }
-//     console.log(queryCmd);
-// };
+}
+    
+}
 
 if (cmdArg === "my-tweets") {
     client.get('statuses/user_timeline', params, function (error, tweets, response) {
@@ -55,16 +43,21 @@ if (cmdArg === "my-tweets") {
             console.log(error);
         } else {
             
-            var data = []; //empty array to hold data
+            var tweetData = []; //empty array to hold tweetData
             for (var i = 0; i < tweets.length; i++) {
-                data.push({
+                tweetData.push({
                     'created at: ': tweets[i].created_at,
                     'Tweets: ': tweets[i].text,
                 });
             }
-            console.log(data);
-            // console.log('Tweets: ' + JSON.stringify(tweets));
-            // console.log('Response: ' + JSON.stringify(response));
+            
+            tweetData.join("\n\n");
+            console.log(tweetData);
+        fs.appendFile("log.txt", cmdArg + "\n\n " + JSON.stringify(tweetData) + divider, function(err) {
+            if (err) throw err;
+            console.log("Most Recent Tweets: " + JSON.stringify(tweetData));
+        });
+            
         }
 
     });
@@ -72,21 +65,8 @@ if (cmdArg === "my-tweets") {
 
 // * `spotify-this-song`
 else if (cmdArg === 'spotify-this-song') {
-    for (var i = 3; i < nodeArgs.length; i++) {
-        // queryLine();
-        // songName = queryLine.queryCmd;
-        // console.log("The Song name query is: " + songName);
-        if (i > 3 && i < nodeArgs.length) {
-
-            songName = songName + "+" + nodeArgs[i];
-
-        } else {
-
-            songName += nodeArgs[i];
-
-        }
-    }
-
+    
+    songName = queryLine;
     
     var spotifyParams = {
         type: 'track',
@@ -96,71 +76,44 @@ else if (cmdArg === 'spotify-this-song') {
 }
 // * `movie-this`
 else if (cmdArg === 'movie-this') {
-    queryLine(movieName);
-    // Loop through all the words in the node argument
-    // And do a little for-loop magic to handle the inclusion of "+"s
-    for (var i = 3; i < nodeArgs.length; i++) {
+    
+    movieName = queryLine;
+    getMovieInfo(movieName);
 
-        if (i > 3 && i < nodeArgs.length) {
-
-            movieName = movieName + "+" + nodeArgs[i];
-
-        } else {
-
-            movieName += nodeArgs[i];
-
-        }
-    }
-
-    // Then run a request to the OMDB API with the movie specified
-    var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&tomatoes=true&r=json&apikey=trilogy";
-
-    // This line is just to help us debug against the actual URL.
-    console.log(queryUrl);
-
-    request(queryUrl, function (error, response, body) {
-
-        // If the request is successful
-        if (!error && response.statusCode === 200) {
-
-            // Parse the body of the site and recover just the imdbRating
-            // (Note: The syntax below for parsing isn't obvious. Just spend a few moments dissecting it).
-            var movieData = JSON.parse(body);
-            var movieTitle = movieData.Title;
-            var movieYear = movieData.Year;
-            var movieImdbRating = movieData.imdbRating;
-            var tomatoesRating = JSON.stringify(movieData.Ratings[1].Value);
-            var movieCountry = movieData.Country;
-            var movieLanguage = movieData.Language;
-            var moviePlot = movieData.Plot;
-            var movieActors = movieData.Actors;
-            console.log("Movie Title: " + movieTitle);
-            console.log("Release Year: " + movieYear);
-            console.log("IMDB Rating: " + movieImdbRating);
-            console.log("RottenTomatoes Rating: " + tomatoesRating);
-            console.log("Country of Origin: " + movieCountry);
-            console.log("Movie Language: " + movieLanguage);
-            console.log("Movie Plot: " + moviePlot);
-            console.log("Actors: " + movieActors);
-            var movieInfo = [
-                "Actor: " + actorName,
-                "Date of Birth: " + actorBirthday,
-                "Country: " + JSON.stringify(actorCountry),
-                "Gender: " + actorGender
-                ].join("\n\n");
-                console.log(movieInfo);
-            fs.appendFile("log.txt", movieInfo + divider, function(err) {
-                if (err) throw err;
-                console.log(movieInfo);
-            });
-        }
-    });
 }
 // * `do-what-it-says`
+else if(cmdArg === 'do-what-it-says'){
+    fs.readFile("random.txt", "utf8", function(error, data) {
 
+        // If the code experiences any errors it will log the error to the console.
+        if (error) {
+        return console.log(error);
+        }
+    
+        // We will then print the contents of data
+        console.log(data);
+    
+        // Then split it by commas (to make it more readable)
+        var dataArr = data.split(",");
+    
+        // We will then re-display the content as an array.
+        console.log(dataArr);
+        cmdArg = dataArr[0];
+        songName = dataArr[1];
 
+        var randomParams = {
+            type: 'track',
+            query: songName
+        };
+        
+        getSpotifyTracks(randomParams);
+    });
+}
+else {
+    getMovieInfo("Star Wars");
+}
 function getSpotifyTracks(spotParams) {
-    // spotifyParams.query = 'The Sign';
+    
     if(!spotParams.query) {
         spotifyParams2 = {
             type: 'track',
@@ -181,16 +134,74 @@ function getSpotifyTracks(spotParams) {
     spotify
         .search(spotifyParams2)
         .then(function (response) {
-            // console.log(response);
+            
             var results = response.tracks.items[5];
-            // console.log(results);
+            
             var songNameFull = results.name;
             var albumName = results.album.name;
             var artistName = results.album.artists[0].name;
             var previewURL = results.preview_url;
-            console.log("Track: " + songNameFull + " Album Name: " + albumName + " Artist Name: " + artistName + " Preview Link: " + previewURL);
+            
+            var spotifyInfo = [
+                "Track: " + songNameFull,
+                " Album Name: " + albumName,
+                " Artist Name: " + artistName,
+                " Preview Link: " + previewURL
+            ].join("\n\n");
+            // console.log(spotifyInfo);
+        fs.appendFile("log.txt", cmdArg + "\n\n " + spotifyInfo + divider, function(err) {
+            if (err) throw err;
+            console.log(spotifyInfo);
+        });
         })
         .catch(function (err) {
             console.log(err);
         });
 }
+    function getMovieInfo(movieParam) {
+        
+        if(!movieParam) {
+            movieName = "Mr. Nobody";
+        } else {
+            movieName = movieParam;
+        }
+    // Then run a request to the OMDB API with the movie specified
+    var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&tomatoes=true&r=json&apikey=trilogy";
+
+    // This line is just to help us debug against the actual URL.
+    console.log(queryUrl);
+
+    request(queryUrl, function (error, response, body) {
+
+        // If the request is successful
+        if (!error && response.statusCode === 200) {
+
+            // Parse the body of the site and recover each item, storing it in a variable
+            var movieData = JSON.parse(body);
+            var movieTitle = movieData.Title;
+            var movieYear = movieData.Year;
+            var movieImdbRating = movieData.imdbRating;
+            var tomatoesRating = JSON.stringify(movieData.Ratings[1].Value);
+            var movieCountry = movieData.Country;
+            var movieLanguage = movieData.Language;
+            var moviePlot = movieData.Plot;
+            var movieActors = movieData.Actors;
+            
+            var movieInfo = [
+            "Movie Title: " + movieTitle,
+            "Release Year: " + movieYear,
+            "IMDB Rating: " + movieImdbRating,
+            "RottenTomatoes Rating: " + tomatoesRating,
+            "Country of Origin: " + movieCountry,
+            "Movie Language: " + movieLanguage,
+            "Movie Plot: " + moviePlot,
+            "Actors: " + movieActors
+                ].join("\n\n");
+                
+            fs.appendFile("log.txt", cmdArg + "\n\n " + movieInfo + divider, function(err) {
+                if (err) throw err;
+                console.log(movieInfo);
+            });
+        }
+    });
+    }
