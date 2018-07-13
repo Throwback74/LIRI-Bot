@@ -27,12 +27,34 @@ var cmdArg = process.argv[2];
 var songName = "";
 // Create an empty variable for holding the movie name
 var movieName = "";
+var divider =
+"\n------------------------------------------------------------\n\n";
 var nodeArgs = process.argv;
+
+// var queryLine = function() {
+//         var queryCmd = "";
+//         for (var i = 3; i < nodeArgs.length; i++) {
+
+//         if (i > 3 && i < nodeArgs.length) {
+
+//             queryCmd = queryCmd + "+" + nodeArgs[i];
+
+//         } else {
+
+//             queryCmd += nodeArgs[i];
+
+//         }
+        
+//     }
+//     console.log(queryCmd);
+// };
+
 if (cmdArg === "my-tweets") {
     client.get('statuses/user_timeline', params, function (error, tweets, response) {
         if (error) {
             console.log(error);
         } else {
+            
             var data = []; //empty array to hold data
             for (var i = 0; i < tweets.length; i++) {
                 data.push({
@@ -51,7 +73,9 @@ if (cmdArg === "my-tweets") {
 // * `spotify-this-song`
 else if (cmdArg === 'spotify-this-song') {
     for (var i = 3; i < nodeArgs.length; i++) {
-
+        // queryLine();
+        // songName = queryLine.queryCmd;
+        // console.log("The Song name query is: " + songName);
         if (i > 3 && i < nodeArgs.length) {
 
             songName = songName + "+" + nodeArgs[i];
@@ -62,6 +86,7 @@ else if (cmdArg === 'spotify-this-song') {
 
         }
     }
+
     
     var spotifyParams = {
         type: 'track',
@@ -71,7 +96,7 @@ else if (cmdArg === 'spotify-this-song') {
 }
 // * `movie-this`
 else if (cmdArg === 'movie-this') {
-
+    queryLine(movieName);
     // Loop through all the words in the node argument
     // And do a little for-loop magic to handle the inclusion of "+"s
     for (var i = 3; i < nodeArgs.length; i++) {
@@ -100,14 +125,34 @@ else if (cmdArg === 'movie-this') {
 
             // Parse the body of the site and recover just the imdbRating
             // (Note: The syntax below for parsing isn't obvious. Just spend a few moments dissecting it).
-            console.log("Movie Title: " + JSON.parse(body).Title);
-            console.log("Release Year: " + JSON.parse(body).Year);
-            console.log("IMDB Rating: " + JSON.parse(body).imdbRating);
-            console.log("RottenTomatoes Rating: " + JSON.stringify(JSON.parse(body).Ratings[1].Value));
-            console.log("Country of Origin: " + JSON.parse(body).Country);
-            console.log("Movie Language: " + JSON.parse(body).Language);
-            console.log("Movie Plot: " + JSON.parse(body).Plot);
-            console.log("Actors: " + JSON.parse(body).Actors);
+            var movieData = JSON.parse(body);
+            var movieTitle = movieData.Title;
+            var movieYear = movieData.Year;
+            var movieImdbRating = movieData.imdbRating;
+            var tomatoesRating = JSON.stringify(movieData.Ratings[1].Value);
+            var movieCountry = movieData.Country;
+            var movieLanguage = movieData.Language;
+            var moviePlot = movieData.Plot;
+            var movieActors = movieData.Actors;
+            console.log("Movie Title: " + movieTitle);
+            console.log("Release Year: " + movieYear);
+            console.log("IMDB Rating: " + movieImdbRating);
+            console.log("RottenTomatoes Rating: " + tomatoesRating);
+            console.log("Country of Origin: " + movieCountry);
+            console.log("Movie Language: " + movieLanguage);
+            console.log("Movie Plot: " + moviePlot);
+            console.log("Actors: " + movieActors);
+            var movieInfo = [
+                "Actor: " + actorName,
+                "Date of Birth: " + actorBirthday,
+                "Country: " + JSON.stringify(actorCountry),
+                "Gender: " + actorGender
+                ].join("\n\n");
+                console.log(movieInfo);
+            fs.appendFile("log.txt", movieInfo + divider, function(err) {
+                if (err) throw err;
+                console.log(movieInfo);
+            });
         }
     });
 }
@@ -138,7 +183,7 @@ function getSpotifyTracks(spotParams) {
         .then(function (response) {
             // console.log(response);
             var results = response.tracks.items[5];
-            console.log(results);
+            // console.log(results);
             var songNameFull = results.name;
             var albumName = results.album.name;
             var artistName = results.album.artists[0].name;
@@ -148,5 +193,4 @@ function getSpotifyTracks(spotParams) {
         .catch(function (err) {
             console.log(err);
         });
-        
 }
