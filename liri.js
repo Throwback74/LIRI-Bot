@@ -42,21 +42,46 @@ if (cmdArg === "my-tweets") {
         if (error) {
             console.log(error);
         } else {
-            
-            var tweetData = []; //empty array to hold tweetData
+            fs.appendFile("log.txt", cmdArg + "\n\n ", function(err) {
+                if (err) throw err;
+                console.log("Most Recent Tweets: " + twitData);
+            });
+            //empty array to hold tweetData
+            var tweetData = [];
+            var tweetCreated = [];
             for (var i = 0; i < tweets.length; i++) {
                 tweetData.push({
-                    'created at: ': tweets[i].created_at,
-                    'Tweets: ': tweets[i].text,
+                    'Tweets: ': tweets[i].text
+                });
+                tweetCreated.push({
+                    'created: ': tweets[i].created_at
                 });
             }
+            var twitData = "";
+
+            for(var j = 0; j < tweetData.length; j++) {
+                
+                var twitterData = JSON.stringify(tweetData[j]);
+                var createdData = JSON.stringify(tweetCreated[j]);
+                
+                
+                var tData = twitterData.split(",");
+                var cData = createdData.split(",");
+                
+
+                twitData = cData + "\n " + tData;
+                
+                fs.appendFile("log.txt", twitData + "\n\n", function(err) {
+                        if (err) throw err;
+                        console.log("Most Recent Tweets: " + twitData);
+                    });
+                
+            }
+            fs.appendFile("log.txt", divider, function(err) {
+                if (err) throw err;
+                console.log("Most Recent Tweets: " + twitData);
+            });
             
-            tweetData.join("\n\n");
-            console.log(tweetData);
-        fs.appendFile("log.txt", cmdArg + "\n\n " + JSON.stringify(tweetData) + divider, function(err) {
-            if (err) throw err;
-            console.log("Most Recent Tweets: " + JSON.stringify(tweetData));
-        });
             
         }
 
