@@ -5,10 +5,8 @@ var request = require('request');
 var Twitter = require('twitter');
 var Spotify = require('node-spotify-api');
 
-
 var client = new Twitter(keys.twitter);
 // var spotify = new Spotify(keys.spotify);
-
 var params = {
     screen_name: 'Charlie53987504',
     count: 20
@@ -21,22 +19,14 @@ var movieName = "";
 var divider =
 "\n------------------------------------------------------------\n\n";
 var nodeArgs = process.argv;
-
 var queryLine = "";
 for (var i = 3; i < nodeArgs.length; i++) {
-
 if (i > 3 && i < nodeArgs.length) {
-
     queryLine = queryLine + "+" + nodeArgs[i];
-
 } else {
-
     queryLine += nodeArgs[i];
-
 }
-    
 }
-
 if (cmdArg === "my-tweets") {
     client.get('statuses/user_timeline', params, function (error, tweets, response) {
         if (error) {
@@ -58,41 +48,28 @@ if (cmdArg === "my-tweets") {
                 });
             }
             var twitData = "";
-
             for(var j = 0; j < tweetData.length; j++) {
                 
                 var twitterData = JSON.stringify(tweetData[j]);
                 var createdData = JSON.stringify(tweetCreated[j]);
-                
-                
                 var tData = twitterData.split(",");
                 var cData = createdData.split(",");
-                
-
                 twitData = cData + "\n " + tData;
-                
                 fs.appendFile("log.txt", twitData + "\n\n", function(err) {
                         if (err) throw err;
                         console.log("Most Recent Tweets: " + twitData);
                     });
-                
             }
             fs.appendFile("log.txt", divider, function(err) {
                 if (err) throw err;
                 console.log("Most Recent Tweets: " + twitData);
             });
-            
-            
         }
-
     });
 }
-
 // * `spotify-this-song`
 else if (cmdArg === 'spotify-this-song') {
-    
     songName = queryLine;
-    
     var spotifyParams = {
         type: 'track',
         query: songName
@@ -101,36 +78,28 @@ else if (cmdArg === 'spotify-this-song') {
 }
 // * `movie-this`
 else if (cmdArg === 'movie-this') {
-    
     movieName = queryLine;
     getMovieInfo(movieName);
-
 }
 // * `do-what-it-says`
 else if(cmdArg === 'do-what-it-says'){
     fs.readFile("random.txt", "utf8", function(error, data) {
-
         // If the code experiences any errors it will log the error to the console.
         if (error) {
         return console.log(error);
         }
-    
         // We will then print the contents of data
         console.log(data);
-    
         // Then split it by commas (to make it more readable)
         var dataArr = data.split(",");
-    
         // We will then re-display the content as an array.
         console.log(dataArr);
         cmdArg = dataArr[0];
         songName = dataArr[1];
-
         var randomParams = {
             type: 'track',
             query: songName
         };
-        
         getSpotifyTracks(randomParams);
     });
 }
@@ -138,7 +107,6 @@ else {
     getMovieInfo("Star Wars");
 }
 function getSpotifyTracks(spotParams) {
-    
     if(!spotParams.query) {
         spotifyParams2 = {
             type: 'track',
@@ -149,24 +117,18 @@ function getSpotifyTracks(spotParams) {
     } else {
         spotifyParams2 = spotParams;
     }
-    
-
     var spotify = new Spotify({
         id: keys.spotify.id,
         secret: keys.spotify.secret
     });
-
     spotify
         .search(spotifyParams2)
         .then(function (response) {
-            
             var results = response.tracks.items[5];
-            
             var songNameFull = results.name;
             var albumName = results.album.name;
             var artistName = results.album.artists[0].name;
             var previewURL = results.preview_url;
-            
             var spotifyInfo = [
                 "Track: " + songNameFull,
                 " Album Name: " + albumName,
@@ -184,7 +146,6 @@ function getSpotifyTracks(spotParams) {
         });
 }
     function getMovieInfo(movieParam) {
-        
         if(!movieParam) {
             movieName = "Mr. Nobody";
         } else {
@@ -195,12 +156,9 @@ function getSpotifyTracks(spotParams) {
 
     // This line is just to help us debug against the actual URL.
     console.log(queryUrl);
-
     request(queryUrl, function (error, response, body) {
-
         // If the request is successful
         if (!error && response.statusCode === 200) {
-
             // Parse the body of the site and recover each item, storing it in a variable
             var movieData = JSON.parse(body);
             var movieTitle = movieData.Title;
@@ -222,7 +180,6 @@ function getSpotifyTracks(spotParams) {
             "Movie Plot: " + moviePlot,
             "Actors: " + movieActors
                 ].join("\n\n");
-                
             fs.appendFile("log.txt", cmdArg + "\n\n " + movieInfo + divider, function(err) {
                 if (err) throw err;
                 console.log(movieInfo);
